@@ -4,7 +4,7 @@ import java.net.*;
 import java.io.*;
 
 public class SimpleService {
-    static final int PORT = 2688;
+    static final int PORT = 26892;
     public static void main(String[] args) {
         try {
             ServerSocket serverSocket = new ServerSocket(PORT);

@@ -5,8 +5,8 @@ import java.net.*;
 
 public class EchoClient {
     public static void main(String[] args) {
-        String host = "gee.cs.oswego.edu";
-        int echoServicePortNumber = 7;
+        String host = "";
+        int echoServicePortNumber = 26890;
 
         Socket echoSocket = null;
         PrintWriter out = null;
