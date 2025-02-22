@@ -59,6 +59,11 @@ public class SimpleService {
                 out.write(encrypted);
                 out.flush();
 
+                // Send acknowledgment (8 bytes)
+                byte[] ack = new byte[8];
+                out.write(ack);
+                out.flush();
+
                 // Update the key
                 key = xorShift(key);
             }

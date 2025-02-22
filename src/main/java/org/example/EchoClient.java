@@ -16,11 +16,26 @@ public class EchoClient {
             System.out.println("Connected to server: " + SERVER_IP);
 
             // Test latency for different message sizes
-            int[] messageSizes = {8, 64, 256, 512};
-            for (int size : messageSizes) {
+            testLatency(out, in);
+
+            // Test throughput
+            testThroughput(out, in);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void testLatency(OutputStream out, InputStream in) throws IOException {
+        int[] messageSizes = {8, 64, 256, 512};
+        int numIterations = 10; // Number of iterations to average latency
+
+        for (int size : messageSizes) {
+            long totalLatency = 0;
+
+            for (int i = 0; i < numIterations; i++) {
                 byte[] message = new byte[size];
-                for (int i = 0; i < size; i++) {
-                    message[i] = (byte) i; // Fill with sample data
+                for (int j = 0; j < size; j++) {
+                    message[j] = (byte) j; // Fill with sample data
                 }
 
                 // Encrypt the message
@@ -61,24 +76,18 @@ public class EchoClient {
                 key = xorShift(key);
 
                 // Validate the response
-                System.out.println("Original message: " + new String(message));
-                System.out.println("Decrypted response: " + new String(decrypted));
-
                 if (!validateMessage(decrypted, message)) {
                     System.out.println("Validation failed for message size: " + size);
-                } else {
-                    System.out.println("Validation succeeded for message size: " + size);
+                    return;
                 }
 
-                // Calculate and print latency
-                long latency = (endTime - startTime) / 1_000_000; // Convert to milliseconds
-                System.out.println("Latency for " + size + " bytes: " + latency + " ms");
+                // Accumulate latency
+                totalLatency += (endTime - startTime);
             }
 
-            // Test throughput
-            testThroughput(out, in);
-        } catch (IOException e) {
-            e.printStackTrace();
+            // Calculate and print average latency in nanoseconds
+            long averageLatency = totalLatency / numIterations;
+            System.out.println("Average latency for " + size + " bytes: " + averageLatency + " ns");
         }
     }
 
@@ -94,6 +103,8 @@ public class EchoClient {
             for (int j = 0; j < size; j++) {
                 message[j] = (byte) j; // Fill with sample data
             }
+
+            System.out.println("Testing throughput for message size: " + size + " bytes");
 
             // Measure throughput
             long startTime = System.nanoTime();
