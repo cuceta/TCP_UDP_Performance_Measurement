@@ -2,6 +2,7 @@ package org.example;
 
 import java.io.*;
 import java.net.*;
+import java.nio.ByteBuffer;
 
 public class EchoClient {
     private static final String SERVER_IP = "localhost";
@@ -10,8 +11,8 @@ public class EchoClient {
 
     public static void main(String[] args) {
         try (Socket socket = new Socket(SERVER_IP, PORT);
-             InputStream in = socket.getInputStream();
-             OutputStream out = socket.getOutputStream()) {
+             OutputStream out = socket.getOutputStream();
+             InputStream in = socket.getInputStream()) {
             System.out.println("Connected to server: " + SERVER_IP);
 
             // Test latency for different message sizes
@@ -25,25 +26,53 @@ public class EchoClient {
                 // Encrypt the message
                 byte[] encrypted = xorEncrypt(message, key);
 
+                // Send message length
+                byte[] lengthBytes = ByteBuffer.allocate(4).putInt(encrypted.length).array();
+                out.write(lengthBytes);
+
+                // Send encrypted message
+                out.write(encrypted);
+                out.flush();
+
+                // Update the key
+                key = xorShift(key);
+
                 // Measure latency
                 long startTime = System.nanoTime();
-                out.write(encrypted);
-                byte[] response = new byte[size];
-                in.read(response);
+
+                // Receive echoed message
+                byte[] response = new byte[encrypted.length];
+                int bytesRead = 0;
+                while (bytesRead < response.length) {
+                    int read = in.read(response, bytesRead, response.length - bytesRead);
+                    if (read == -1) {
+                        System.out.println("Connection closed by server");
+                        return;
+                    }
+                    bytesRead += read;
+                }
+
                 long endTime = System.nanoTime();
 
-                // Decrypt and validate the response
+                // Decrypt the response
                 byte[] decrypted = xorEncrypt(response, key);
+
+                // Update the key
+                key = xorShift(key);
+
+                // Validate the response
+                System.out.println("Original message: " + new String(message));
+                System.out.println("Decrypted response: " + new String(decrypted));
+
                 if (!validateMessage(decrypted, message)) {
                     System.out.println("Validation failed for message size: " + size);
+                } else {
+                    System.out.println("Validation succeeded for message size: " + size);
                 }
 
                 // Calculate and print latency
                 long latency = (endTime - startTime) / 1_000_000; // Convert to milliseconds
                 System.out.println("Latency for " + size + " bytes: " + latency + " ms");
-
-                // Update the key
-                key = xorShift(key);
             }
 
             // Test throughput
@@ -69,9 +98,33 @@ public class EchoClient {
             // Measure throughput
             long startTime = System.nanoTime();
             for (int j = 0; j < count; j++) {
+                // Encrypt the message
                 byte[] encrypted = xorEncrypt(message, key);
+
+                // Send message length
+                byte[] lengthBytes = ByteBuffer.allocate(4).putInt(encrypted.length).array();
+                out.write(lengthBytes);
+
+                // Send encrypted message
                 out.write(encrypted);
-                in.read(new byte[8]); // Read acknowledgment
+                out.flush();
+
+                // Update the key
+                key = xorShift(key);
+
+                // Read acknowledgment (8 bytes)
+                byte[] ack = new byte[8];
+                int bytesRead = 0;
+                while (bytesRead < ack.length) {
+                    int read = in.read(ack, bytesRead, ack.length - bytesRead);
+                    if (read == -1) {
+                        System.out.println("Connection closed by server");
+                        return;
+                    }
+                    bytesRead += read;
+                }
+
+                // Update the key
                 key = xorShift(key);
             }
             long endTime = System.nanoTime();
@@ -105,8 +158,7 @@ public class EchoClient {
             for (int j = 0; j < 8 && i + j < data.length; j++) {
                 block |= ((long) data[i + j] & 0xFF) << (8 * j);
             }
-            block ^= key;
-            key = xorShift(key);
+            block ^= key; // XOR with the key
             for (int j = 0; j < 8 && i + j < data.length; j++) {
                 encrypted[i + j] = (byte) (block >> (8 * j));
             }

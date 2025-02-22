@@ -2,6 +2,7 @@ package org.example;
 
 import java.io.*;
 import java.net.*;
+import java.nio.ByteBuffer;
 
 public class SimpleService {
     static final int PORT = 26892;
@@ -28,20 +29,38 @@ public class SimpleService {
     private static void handleClient(Socket client) {
         try (InputStream in = client.getInputStream();
              OutputStream out = client.getOutputStream()) {
-            byte[] buffer = new byte[512];
-            int bytesRead;
+            while (true) {
+                // Read message length
+                byte[] lengthBytes = new byte[4];
+                int bytesRead = in.read(lengthBytes);
+                if (bytesRead != 4) {
+                    System.out.println("Failed to read message length");
+                    break;
+                }
+                int messageLength = ByteBuffer.wrap(lengthBytes).getInt();
 
-            while ((bytesRead = in.read(buffer)) != -1) {
+                // Read the exact number of bytes
+                byte[] buffer = new byte[messageLength];
+                bytesRead = in.read(buffer);
+                if (bytesRead != messageLength) {
+                    System.out.println("Incomplete message received");
+                    break;
+                }
+
                 // Decrypt the message
                 byte[] decrypted = xorEncrypt(buffer, key);
-                System.out.println("Received: " + new String(decrypted, 0, bytesRead));
+                System.out.println("Decrypted message: " + new String(decrypted));
 
                 // Update the key
                 key = xorShift(key);
 
                 // Encrypt and echo back the message
                 byte[] encrypted = xorEncrypt(decrypted, key);
-                out.write(encrypted, 0, bytesRead);
+                out.write(encrypted);
+                out.flush();
+
+                // Update the key
+                key = xorShift(key);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -62,8 +81,7 @@ public class SimpleService {
             for (int j = 0; j < 8 && i + j < data.length; j++) {
                 block |= ((long) data[i + j] & 0xFF) << (8 * j);
             }
-            block ^= key;
-            key = xorShift(key);
+            block ^= key; // XOR with the key
             for (int j = 0; j < 8 && i + j < data.length; j++) {
                 encrypted[i + j] = (byte) (block >> (8 * j));
             }
