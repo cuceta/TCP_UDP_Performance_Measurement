@@ -104,8 +104,6 @@ public class EchoClient {
                 message[j] = (byte) j; // Fill with sample data
             }
 
-            System.out.println("Testing throughput for message size: " + size + " bytes");
-
             // Measure throughput
             long startTime = System.nanoTime();
             for (int j = 0; j < count; j++) {
