@@ -11,9 +11,11 @@ public class SimpleService {
     public static void main(String[] args) {
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             System.out.println("TCP Server is listening on port " + PORT + "...");
-            Socket client = serverSocket.accept();
-            System.out.println("Client connected: " + client.getInetAddress());
-            handleClient(client);
+            while (true) {
+                Socket client = serverSocket.accept();
+                System.out.println("Client connected: " + client.getInetAddress());
+                handleClient(client);
+            }
         } catch (IOException ex) {
             ex.printStackTrace();
             System.exit(-1);
@@ -40,10 +42,7 @@ public class SimpleService {
                 System.out.println("Received encrypted message. Key before decryption: " + key);
 
                 byte[] decrypted = xorEncrypt(buffer, key);
-                System.out.println("Decrypted message: " + new String(decrypted));
                 key = xorShift(key);
-                System.out.println("Updated key after decryption: " + key);
-
                 byte[] encrypted = xorEncrypt(decrypted, key);
                 out.write(encrypted);
                 out.flush();
@@ -54,7 +53,6 @@ public class SimpleService {
                 out.flush();
                 System.out.println("Sent acknowledgment.");
                 key = xorShift(key);
-                System.out.println("Updated key after acknowledgment: " + key);
             }
         } catch (IOException e) {
             System.out.println("Error in client communication: " + e.getMessage());
