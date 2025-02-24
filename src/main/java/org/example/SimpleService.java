@@ -34,6 +34,11 @@ public class SimpleService {
                 int messageLength = ByteBuffer.wrap(lengthBytes).getInt();
                 System.out.println("Received message length: " + messageLength + " bytes");
 
+                if (messageLength <= 0 || messageLength > 65536) {
+                    System.out.println("Invalid message length: " + messageLength);
+                    break;
+                }
+
                 byte[] buffer = new byte[messageLength];
                 if (!readFully(in, buffer, messageLength)) {
                     System.out.println("Incomplete message received.");
@@ -42,7 +47,10 @@ public class SimpleService {
                 System.out.println("Received encrypted message. Key before decryption: " + key);
 
                 byte[] decrypted = xorEncrypt(buffer, key);
+                System.out.println("Decrypted message: " + new String(decrypted));
                 key = xorShift(key);
+                System.out.println("Updated key after decryption: " + key);
+
                 byte[] encrypted = xorEncrypt(decrypted, key);
                 out.write(encrypted);
                 out.flush();
@@ -53,6 +61,7 @@ public class SimpleService {
                 out.flush();
                 System.out.println("Sent acknowledgment.");
                 key = xorShift(key);
+                System.out.println("Updated key after acknowledgment: " + key);
             }
         } catch (IOException e) {
             System.out.println("Error in client communication: " + e.getMessage());
