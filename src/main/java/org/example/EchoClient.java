@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
 
 public class EchoClient {
     private static final String SERVER_IP = "localhost";
-    private static final int PORT = 26892;
+    private static final int PORT = 26893;
     private static long key = 123456789L; // Shared initial key
 
     public static void main(String[] args) {
