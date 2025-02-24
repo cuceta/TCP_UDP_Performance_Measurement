@@ -38,6 +38,7 @@ public class SimpleService {
                     break;
                 }
                 int messageLength = ByteBuffer.wrap(lengthBytes).getInt();
+                System.out.println("Received message length: " + messageLength + " bytes");
 
                 // Read the exact number of bytes
                 byte[] buffer = new byte[messageLength];
@@ -46,6 +47,7 @@ public class SimpleService {
                     System.out.println("Incomplete message received");
                     break;
                 }
+                System.out.println("Received encrypted message");
 
                 // Decrypt the message
                 byte[] decrypted = xorEncrypt(buffer, key);
@@ -58,6 +60,13 @@ public class SimpleService {
                 byte[] encrypted = xorEncrypt(decrypted, key);
                 out.write(encrypted);
                 out.flush();
+                System.out.println("Sent echoed message");
+
+                // Send acknowledgment (8 bytes)
+                byte[] ack = new byte[8];
+                out.write(ack);
+                out.flush();
+                System.out.println("Sent acknowledgment for message");
 
                 // Update the key
                 key = xorShift(key);
@@ -66,7 +75,6 @@ public class SimpleService {
             e.printStackTrace();
         }
     }
-
     private static long xorShift(long r) {
         r ^= r << 13;
         r ^= r >>> 7;

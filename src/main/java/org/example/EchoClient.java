@@ -10,9 +10,11 @@ public class EchoClient {
     private static long key = 123456789L; // Shared initial key
 
     public static void main(String[] args) {
-        try (Socket socket = new Socket(SERVER_IP, PORT);
-             OutputStream out = socket.getOutputStream();
-             InputStream in = socket.getInputStream()) {
+        try (Socket socket = new Socket(SERVER_IP, PORT)) {
+            socket.setSoTimeout(5000); // 5-second timeout
+            OutputStream out = socket.getOutputStream();
+            InputStream in = socket.getInputStream();
+
             System.out.println("Connected to server: " + SERVER_IP);
 
             // Test latency for different message sizes
@@ -20,8 +22,12 @@ public class EchoClient {
 
             // Test throughput
             testThroughput(out, in);
+        } catch (SocketTimeoutException e) {
+            System.out.println("Socket timeout: Server did not respond in time");
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("Program interrupted: " + e.getMessage());
         }
     }
 
@@ -104,9 +110,13 @@ public class EchoClient {
                 message[j] = (byte) j; // Fill with sample data
             }
 
+            System.out.println("Testing throughput for message size: " + size + " bytes");
+
             // Measure throughput
             long startTime = System.nanoTime();
             for (int j = 0; j < count; j++) {
+                System.out.println("Sending message " + (j + 1) + " of " + count);
+
                 // Encrypt the message
                 byte[] encrypted = xorEncrypt(message, key);
 
@@ -132,6 +142,7 @@ public class EchoClient {
                     }
                     bytesRead += read;
                 }
+                System.out.println("Received acknowledgment for message " + (j + 1));
 
                 // Update the key
                 key = xorShift(key);
