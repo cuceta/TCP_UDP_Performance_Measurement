@@ -1,0 +1,10 @@
+Message Size (Bytes),Latency (Microseconds)
+8,1661
+64,236
+256,215
+512,161
+
+Message Size (Bytes),Messages,Throughput (Mbps)
+1024,1024,709.6485582353534
+512,2048,1333.0415728496212
+256,4096,866.0958777526338
