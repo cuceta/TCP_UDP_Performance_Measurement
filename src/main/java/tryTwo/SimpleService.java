@@ -4,7 +4,7 @@ import java.io.*;
 import java.net.*;
 
 public class SimpleService {
-    private static final int PORT = 26895;
+    private static final int PORT = 26896;
 
     private static long xorShift(long r) {
         r ^= (r << 13);
