@@ -18,11 +18,11 @@ public class UDP_Client {
         Map<Integer, Double> throughputResults = new HashMap<>();
 
         try (DatagramChannel channel = DatagramChannel.open()) {
-            InetSocketAddress serverAddress = new InetSocketAddress(HOST, PORT);
+            channel.connect(new InetSocketAddress(HOST, PORT));
 
             for (int size : messageSizes) {
-                latencyResults.put(size, measureLatency(channel, serverAddress, size));
-                throughputResults.put(size, measureThroughput(channel, serverAddress, size));
+                latencyResults.put(size, measureLatency(channel, size));
+                throughputResults.put(size, measureThroughput(channel, size));
             }
         }
 
@@ -30,46 +30,48 @@ public class UDP_Client {
         System.out.println("Results saved to " + CSV_FILE);
     }
 
-    private static List<Long> measureLatency(DatagramChannel channel, InetSocketAddress serverAddress, int messageSize) throws IOException {
+    private static List<Long> measureLatency(DatagramChannel channel, int messageSize) throws IOException {
         List<Long> latencies = new ArrayList<>();
         ByteBuffer buffer = ByteBuffer.allocate(messageSize);
         Arrays.fill(buffer.array(), (byte) 1);
-
-        ByteBuffer responseBuffer = ByteBuffer.allocate(messageSize);
+        ByteBuffer ackBuffer = ByteBuffer.allocate(1);
 
         for (int i = 0; i < NUM_MESSAGES; i++) {
             long startTime = System.nanoTime();
+            buffer.rewind();
+            channel.write(buffer);
 
-            channel.send(buffer, serverAddress);  // Send packet
-            buffer.clear();
+            if ((i + 1) % 10 == 0) {  // Only wait for acknowledgment every 10 messages
+                ackBuffer.clear();
+                channel.read(ackBuffer);
+            }
 
-            channel.receive(responseBuffer);  // Receive response
             long endTime = System.nanoTime();
-
-            latencies.add((endTime - startTime) / 1000); // Convert ns to µs
-            responseBuffer.clear();
+            latencies.add((endTime - startTime) / 1000);
         }
         return latencies;
     }
 
-    private static double measureThroughput(DatagramChannel channel, InetSocketAddress serverAddress, int messageSize) throws IOException {
-        int numMessages = 1048576 / messageSize; // 1MB total data
+    private static double measureThroughput(DatagramChannel channel, int messageSize) throws IOException {
+        int numMessages = 1048576 / messageSize;
         ByteBuffer buffer = ByteBuffer.allocate(messageSize);
         Arrays.fill(buffer.array(), (byte) 1);
-        ByteBuffer ackBuffer = ByteBuffer.allocate(8);
-
+        ByteBuffer ackBuffer = ByteBuffer.allocate(1);
         long startTime = System.nanoTime();
 
         for (int i = 0; i < numMessages; i++) {
-            channel.send(buffer, serverAddress);
-            buffer.clear();
-            channel.receive(ackBuffer);  // Receive acknowledgment
-            ackBuffer.clear();
+            buffer.rewind();
+            channel.write(buffer);
+
+            if ((i + 1) % 10 == 0) {  // Only check for acknowledgment every 10 messages
+                ackBuffer.clear();
+                channel.read(ackBuffer);
+            }
         }
 
         long endTime = System.nanoTime();
-        double duration = (endTime - startTime) / 1e9; // Convert ns to seconds
-        return (8.0 * 1048576 / duration) / 1e6; // Mbps
+        double duration = (endTime - startTime) / 1e9;
+        return (8.0 * 1048576 / duration) / 1e6;
     }
 
     private static void saveResultsToCSV(Map<Integer, List<Long>> latencyResults, Map<Integer, Double> throughputResults) throws IOException {

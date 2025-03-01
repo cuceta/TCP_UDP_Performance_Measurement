@@ -1,5 +1,3 @@
-package TCP;
-
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtils;
 import org.jfree.chart.JFreeChart;
@@ -11,7 +9,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 import java.io.*;
 import java.util.*;
 
-public class TCP_NetworkGraphGenerator {
+public class NetworkGraphGenerator {
 
     public static void main(String[] args) {
         runClientAndGenerateGraphs("TCP.EchoClient", "TCP_network_results.csv", "TCP_");
