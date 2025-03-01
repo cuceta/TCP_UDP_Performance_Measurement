@@ -9,23 +9,71 @@
             font-family: Arial, sans-serif;
             text-align: center;
         }
+        img{
+            width: 100%;
+            height: auto;
+            margin-bottom: 20px;
+        }
         .chart {
             margin: 20px;
+        }
+        .container {
+            display: grid;
+            /* Enables grid layout */
+            grid-template-columns: 1fr 1fr;
+            /* Creates two equal-width columns */
+            gap: 10px;
+            /* Adds space between columns */
+        }
+
+        .column {
+            padding: 10px;
+            /* Adds padding inside each column */
+        }
+
+        .column:nth-child(1) {
+            background-color: #f2f2f2;
+            /* Light grey background for the first column */
+        }
+
+        .column:nth-child(2) {
+            background-color: #e6e6e6;
+            /* Slightly darker grey
+          background for the second column */
         }
     </style>
 </head>
 <body>
-<h1>TCP</h1>
-    <h2>Latency</h2>
-    <img src="TCP_latency_8B.png" alt="TCP_latency_8B.png Benchmark Chart"/>
-    <img src="TCP_latency_64B.png" alt="TCP_latency_8B.png Benchmark Chart"/>
-    <img src="TCP_latency_256B.png" alt="TCP_latency_8B.png Benchmark Chart"/>
-    <img src="TCP_latency_512B.png" alt="TCP_latency_8B.png Benchmark Chart"/>
+<div class="container">
+    <div class="column">
+        <h1>TCP</h1>
+        <h2>Latency</h2>
+        <img src="TCP_latency_8B.png" alt="TCP_latency_8B.png Benchmark Chart"/>
+        <img src="TCP_latency_64B.png" alt="TCP_latency_8B.png Benchmark Chart"/>
+        <img src="TCP_latency_256B.png" alt="TCP_latency_8B.png Benchmark Chart"/>
+        <img src="TCP_latency_512B.png" alt="TCP_latency_8B.png Benchmark Chart"/>
 
-<div class="chart">
-    <h2>Throughput</h2>
-    <img src="TCP_throughput.png" alt="ConcurrentHashMap Benchmark Chart"/>
+        <div class="chart">
+            <h2>Throughput</h2>
+            <img src="TCP_throughput.png" alt="ConcurrentHashMap Benchmark Chart"/>
+        </div>
+    </div>
+
+    <div class="column">
+
+        <h1>UDP</h1>
+        <h2>Latency</h2>
+        <img src="UDP_latency_8B.png" alt="UDP_latency_8B.png Benchmark Chart"/>
+        <img src="UDP_latency_64B.png" alt="UDP_latency_8B.png Benchmark Chart"/>
+        <img src="UDP_latency_256B.png" alt="UDP_latency_8B.png Benchmark Chart"/>
+        <img src="UDP_latency_512B.png" alt="UDP_latency_8B.png Benchmark Chart"/>
+
+        <div class="chart">
+            <h2>Throughput</h2>
+            <img src="UDP_throughput.png" alt="ConcurrentHashMap Benchmark Chart"/>
+        </div>
+    </div>
+
 </div>
-
 </body>
 </html>

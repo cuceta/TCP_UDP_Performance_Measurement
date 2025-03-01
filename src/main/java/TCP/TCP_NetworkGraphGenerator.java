@@ -14,11 +14,16 @@ import java.util.*;
 public class TCP_NetworkGraphGenerator {
 
     public static void main(String[] args) {
-        generateLatencyGraph("TCP_network_results.csv");
-        generateThroughputGraph("TCP_network_results.csv");
+        runClientAndGenerateGraphs("TCP.EchoClient", "TCP_network_results.csv", "TCP_");
+        runClientAndGenerateGraphs("UDP.UDP_Client", "UDP_network_results.csv", "UDP_");
     }
 
-    public static void generateLatencyGraph(String filePath) {
+    private static void runClientAndGenerateGraphs(String clientClass, String csvFile, String prefix) {
+        generateLatencyGraph(csvFile, prefix);
+        generateThroughputGraph(csvFile, prefix);
+    }
+
+    public static void generateLatencyGraph(String filePath, String prefix) {
         Map<Integer, List<Integer>> latencyData = new HashMap<>();
 
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
@@ -45,12 +50,12 @@ public class TCP_NetworkGraphGenerator {
         int[] sizes = {8, 64, 256, 512};
         for (int size : sizes) {
             if (latencyData.containsKey(size)) {
-                saveLatencyChart(size, latencyData.get(size));
+                saveLatencyChart(size, latencyData.get(size), prefix);
             }
         }
     }
 
-    private static void saveLatencyChart(int messageSize, List<Integer> latencies) {
+    private static void saveLatencyChart(int messageSize, List<Integer> latencies, String prefix) {
         XYSeries series = new XYSeries("Latency");
         int sum = 0;
         for (int i = 0; i < latencies.size(); i++) {
@@ -75,13 +80,13 @@ public class TCP_NetworkGraphGenerator {
         );
 
         try {
-            ChartUtils.saveChartAsPNG(new File("TCP_latency_" + messageSize + "B.png"), latencyChart, 800, 600);
+            ChartUtils.saveChartAsPNG(new File(prefix + "latency_" + messageSize + "B.png"), latencyChart, 800, 600);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static void generateThroughputGraph(String filePath) {
+    public static void generateThroughputGraph(String filePath, String prefix) {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
@@ -113,7 +118,7 @@ public class TCP_NetworkGraphGenerator {
         );
 
         try {
-            ChartUtils.saveChartAsPNG(new File("TCP_throughput.png"), throughputChart, 800, 600);
+            ChartUtils.saveChartAsPNG(new File(prefix + "throughput.png"), throughputChart, 800, 600);
         } catch (IOException e) {
             e.printStackTrace();
         }
