@@ -8,7 +8,7 @@ public class EchoClient {
     private static final String HOST = "localhost"; // Replace with actual server IP
     private static final int PORT = 26896;
     private static final int NUM_MESSAGES = 100; // Number of latency test messages per size
-    private static final String CSV_FILE = "network_results.csv";
+    private static final String CSV_FILE = "TCP_network_results.csv";
 
     public static void main(String[] args) throws IOException {
         List<Integer> messageSizes = Arrays.asList(8, 64, 256, 512);

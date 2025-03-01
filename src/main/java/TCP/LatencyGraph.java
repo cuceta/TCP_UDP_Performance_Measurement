@@ -14,7 +14,7 @@ import java.util.*;
 
 public class LatencyGraph {
     public static void main(String[] args) {
-        String csvFile = "network_results.csv";  // Change to the correct file path
+        String csvFile = "TCP_network_results.csv";  // Change to the correct file path
         Map<Integer, List<Long>> latencyData = readLatencyCSV(csvFile);
 
         for (Map.Entry<Integer, List<Long>> entry : latencyData.entrySet()) {

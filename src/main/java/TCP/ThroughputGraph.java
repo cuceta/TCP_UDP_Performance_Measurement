@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class ThroughputGraph {
     public static void main(String[] args) {
-        String csvFile = "network_results.csv";  // Change to the correct file path
+        String csvFile = "TCP_network_results.csv";  // Change to the correct file path
         Map<Integer, Double> throughputData = readThroughputCSV(csvFile);
         plotThroughputGraph(throughputData);
     }

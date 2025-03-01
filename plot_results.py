@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Load CSV data
-df = pd.read_csv("network_results.csv")
+df = pd.read_csv("TCP_network_results.csv")
 
 # Filter throughput data
 throughput_df = df[df.columns[-2:]].dropna()

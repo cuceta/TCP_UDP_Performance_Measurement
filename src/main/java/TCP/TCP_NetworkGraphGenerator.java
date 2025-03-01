@@ -14,8 +14,8 @@ import java.util.*;
 public class TCP_NetworkGraphGenerator {
 
     public static void main(String[] args) {
-        generateLatencyGraph("network_results.csv");
-        generateThroughputGraph("network_results.csv");
+        generateLatencyGraph("TCP_network_results.csv");
+        generateThroughputGraph("TCP_network_results.csv");
     }
 
     public static void generateLatencyGraph(String filePath) {
