@@ -6,15 +6,18 @@ import java.util.*;
 
 public class TCP_Client {
 //    private static final String HOST = "localhost";
-    private static final String HOST = "pi.cs.oswego.edu";
+//    private static final String HOST = "pi.cs.oswego.edu";
 //    private static final String HOST = "rho.cs.oswego.edu";
-//    private static final String HOST = "gee.cs.oswego.edu";
+    private static final String HOST = "gee.cs.oswego.edu";
 
     private static final int PORT = 26896;
-//    private static final String OUTPUT_DIR = "local-local";
-    private static final String OUTPUT_DIR = "local-pi";
-//    private static final String OUTPUT_DIR = "pi-rho";
-//    private static final String OUTPUT_DIR = "rho-gee";
+
+
+    //    private static final String OUTPUT_DIR = System.getProperty("user.home") + "/Desktop/TCP_UDP_Perfomance_Measurement/local-local";
+//    private static final String OUTPUT_DIR = System.getProperty("user.home") + "/Desktop/TCP_UDP_Perfomance_Measurement/local-pi";
+//    private static final String OUTPUT_DIR = System.getProperty("user.home") + "/Desktop/TCP_UDP_Perfomance_Measurement/pi-rho";
+    private static final String OUTPUT_DIR = System.getProperty("user.home") + "/Desktop/TCP_UDP_Perfomance_Measurement/rho-gee";
+
 
     private static final long KEY = 123456789L;
 
@@ -52,6 +55,7 @@ public class TCP_Client {
             throughputResults.put(size, measureThroughput(size));
         }
 
+        System.out.println("Saving results to: " + csvFile);
         saveResultsToCSV(csvFile, latencyResults, throughputResults);
     }
 
@@ -107,10 +111,18 @@ public class TCP_Client {
     }
 
     private static void saveResultsToCSV(String csvFile, Map<Integer, List<Long>> latencyResults, Map<Integer, Double> throughputResults) throws IOException {
-        System.out.println("Saving results to CSV...");
+        File file = new File(csvFile);
+        File parentDir = file.getParentFile();
+
+        if (parentDir != null && !parentDir.exists()) {
+            if (!parentDir.mkdirs()) {
+                System.err.println("Failed to create directory: " + parentDir.getAbsolutePath());
+                return;
+            }
+        }
+
         try (PrintWriter writer = new PrintWriter(new FileWriter(csvFile))) {
             writer.println("Message Size,Message Number,Latency (µs)");
-
             for (int size : latencyResults.keySet()) {
                 List<Long> latencies = latencyResults.get(size);
                 for (int i = 0; i < latencies.size(); i++) {
@@ -123,6 +135,5 @@ public class TCP_Client {
                 writer.printf("%d,%.2f%n", size, throughputResults.get(size));
             }
         }
-        System.out.println("CSV file saved successfully.");
     }
 }
