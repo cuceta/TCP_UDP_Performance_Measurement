@@ -33,6 +33,7 @@ public class UDP_Server {
 
         try (DatagramChannel channel = DatagramChannel.open()) {
             channel.bind(new InetSocketAddress("0.0.0.0", PORT)); // Listen on all interfaces
+            channel.setOption(StandardSocketOptions.SO_RCVBUF, 1048576); // Increase receive buffer size
             ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
 
             while (true) {

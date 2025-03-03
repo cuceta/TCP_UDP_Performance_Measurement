@@ -7,26 +7,19 @@ import java.nio.channels.DatagramChannel;
 import java.util.*;
 
 public class UDP_Client {
-
-
-//    private static final String HOST = "localhost";
-    private static final String HOST = "pi.oswego.edu";
-//    private static final String HOST = "rho.oswego.edu";
-//    private static final String HOST = "gee.oswego.edu";
-
+    //    private static final String HOST = "localhost";
+    private static final String HOST = "pi.cs.oswego.edu";
+//    private static final String HOST = "rho.cs.oswego.edu";
+//    private static final String HOST = "gee.cs.oswego.edu";
 
     private static final int PORT = 26896;
-    private static final int NUM_MESSAGES = 100;
-
-
-//    private static String OUTPUT_DIR = "local-local";
-    private static String OUTPUT_DIR = "local-pi";
-//    private static String OUTPUT_DIR = "pi-rho";
-//    private static String OUTPUT_DIR = "rho-gee";
-
-
+    //    private static final String OUTPUT_DIR = "local-local";
+    private static final String OUTPUT_DIR = "local-pi";
+//    private static final String OUTPUT_DIR = "pi-rho";
+//    private static final String OUTPUT_DIR = "rho-gee";
 
     private static final long KEY = 123456789L;
+    private static final int NUM_LATENCY_MESSAGES = 100;
 
     private static long xorShift(long r) {
         r ^= (r << 13);
@@ -46,78 +39,93 @@ public class UDP_Client {
     }
 
     public static void main(String[] args) throws IOException {
-        File directory = new File(OUTPUT_DIR);
-        if (!directory.exists()) {
-            directory.mkdirs();
-        }
         String csvFile = OUTPUT_DIR + "/UDP_network_results.csv";
-
-        List<Integer> messageSizes = Arrays.asList(8, 64, 256, 512);
+        List<Integer> latencySizes = Arrays.asList(8, 64, 256, 512);
+        List<Integer> throughputSizes = Arrays.asList(1024, 512, 256);
         Map<Integer, List<Long>> latencyResults = new HashMap<>();
         Map<Integer, Double> throughputResults = new HashMap<>();
 
         try (DatagramChannel channel = DatagramChannel.open()) {
             channel.connect(new InetSocketAddress(HOST, PORT));
 
-            for (int size : messageSizes) {
+            for (int size : latencySizes) {
+                System.out.println("Measuring latency for message size: " + size + " bytes");
                 latencyResults.put(size, measureLatency(channel, size));
+            }
+
+            for (int size : throughputSizes) {
+                System.out.println("Measuring throughput for message size: " + size + " bytes");
                 throughputResults.put(size, measureThroughput(channel, size));
             }
         }
 
-        saveResultsToCSV(latencyResults, throughputResults, csvFile);
+        saveResultsToCSV(csvFile, latencyResults, throughputResults);
         System.out.println("Results saved to " + csvFile);
     }
 
     private static List<Long> measureLatency(DatagramChannel channel, int messageSize) throws IOException {
         List<Long> latencies = new ArrayList<>();
         ByteBuffer buffer = ByteBuffer.allocate(messageSize);
-        Arrays.fill(buffer.array(), (byte) 1);
-        byte[] encryptedData = encryptDecrypt(buffer.array(), KEY);
-        buffer.put(encryptedData);
-        ByteBuffer ackBuffer = ByteBuffer.allocate(1);
+        byte[] data = new byte[messageSize];
+        Arrays.fill(data, (byte) 1);
+        data = encryptDecrypt(data, KEY);
+        buffer.put(data);
+        ByteBuffer responseBuffer = ByteBuffer.allocate(messageSize);
 
-        for (int i = 0; i < NUM_MESSAGES; i++) {
+        for (int i = 0; i < NUM_LATENCY_MESSAGES; i++) {
             long startTime = System.nanoTime();
             buffer.rewind();
             channel.write(buffer);
-
-            if ((i + 1) % 10 == 0) {
-                ackBuffer.clear();
-                channel.read(ackBuffer);
-            }
-
+            responseBuffer.clear();
+            channel.read(responseBuffer);
             long endTime = System.nanoTime();
             latencies.add((endTime - startTime) / 1000);
+            System.out.println("Latency measurement " + (i + 1) + " of " + NUM_LATENCY_MESSAGES);
         }
         return latencies;
     }
 
     private static double measureThroughput(DatagramChannel channel, int messageSize) throws IOException {
-        int numMessages = 1048576 / messageSize;
+        int numMessages;
+        switch (messageSize) {
+            case 1024:
+                numMessages = 1024;
+                break;
+            case 512:
+                numMessages = 2048;
+                break;
+            case 256:
+                numMessages = 4096;
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid message size for throughput test");
+        }
+
         ByteBuffer buffer = ByteBuffer.allocate(messageSize);
-        Arrays.fill(buffer.array(), (byte) 1);
-        byte[] encryptedData = encryptDecrypt(buffer.array(), KEY);
-        buffer.put(encryptedData);
-        ByteBuffer ackBuffer = ByteBuffer.allocate(1);
+        byte[] data = new byte[messageSize];
+        for (int i = 0; i < messageSize; i++) {
+            data[i] = (byte) (i % 256);
+        }
+        data = encryptDecrypt(data, KEY);
+        buffer.put(data);
+        ByteBuffer ackBuffer = ByteBuffer.allocate(8);
         long startTime = System.nanoTime();
 
         for (int i = 0; i < numMessages; i++) {
             buffer.rewind();
             channel.write(buffer);
-
-            if ((i + 1) % 10 == 0) {
-                ackBuffer.clear();
-                channel.read(ackBuffer);
+            ackBuffer.clear();
+            channel.read(ackBuffer);
+            if ((i + 1) % (numMessages / 10) == 0) {
+                System.out.println("Throughput progress: " + ((i + 1) * 100 / numMessages) + "%");
             }
         }
 
         long endTime = System.nanoTime();
-        double duration = (endTime - startTime) / 1e9;
-        return (8.0 * 1048576 / duration) / 1e6;
+        return (8.0 * 1048576 / ((endTime - startTime) / 1e9));
     }
 
-    private static void saveResultsToCSV(Map<Integer, List<Long>> latencyResults, Map<Integer, Double> throughputResults, String csvFile) throws IOException {
+    private static void saveResultsToCSV(String csvFile, Map<Integer, List<Long>> latencyResults, Map<Integer, Double> throughputResults) throws IOException {
         try (PrintWriter writer = new PrintWriter(new FileWriter(csvFile))) {
             writer.println("Message Size,Message Number,Latency (µs)");
             for (int size : latencyResults.keySet()) {

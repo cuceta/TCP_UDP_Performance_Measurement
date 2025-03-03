@@ -1,3 +1,4 @@
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtils;
 import org.jfree.chart.JFreeChart;
@@ -11,7 +12,7 @@ import java.util.*;
 
 public class NetworkGraphGenerator {
 
-    private static final String OUTPUT_DIR = "local-local";
+    private static String OUTPUT_DIR = "local-pi";
 
     public static void main(String[] args) {
         String tcpCsvFile = OUTPUT_DIR + "/TCP_network_results.csv";
@@ -98,6 +99,7 @@ public class NetworkGraphGenerator {
                 if (values.length < 2) continue;
                 try {
                     int messageSize = Integer.parseInt(values[0].trim());
+                    if (messageSize == 8 || messageSize == 64) continue; // Exclude 8B and 64B sizes
                     double throughput = Double.parseDouble(values[1].trim());
                     dataset.addValue(throughput, "Throughput", messageSize + "B");
                 } catch (NumberFormatException e) {

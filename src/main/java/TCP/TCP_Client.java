@@ -6,17 +6,15 @@ import java.util.*;
 
 public class TCP_Client {
 //    private static final String HOST = "localhost";
-    private static final String HOST = "pi.oswego.edu";
-//    private static final String HOST = "rho.oswego.edu";
-//    private static final String HOST = "gee.oswego.edu";
-
+    private static final String HOST = "pi.cs.oswego.edu";
+//    private static final String HOST = "rho.cs.oswego.edu";
+//    private static final String HOST = "gee.cs.oswego.edu";
 
     private static final int PORT = 26896;
-    private static final int NUM_MESSAGES = 100;
-//    private static String OUTPUT_DIR = "local-local";
-    private static String OUTPUT_DIR = "local-pi";
-//    private static String OUTPUT_DIR = "pi-rho";
-//    private static String OUTPUT_DIR = "rho-gee";
+//    private static final String OUTPUT_DIR = "local-local";
+    private static final String OUTPUT_DIR = "local-pi";
+//    private static final String OUTPUT_DIR = "pi-rho";
+//    private static final String OUTPUT_DIR = "rho-gee";
 
     private static final long KEY = 123456789L;
 
@@ -39,41 +37,42 @@ public class TCP_Client {
 
     public static void main(String[] args) throws IOException {
         String csvFile = OUTPUT_DIR + "/TCP_network_results.csv";
-        List<Integer> messageSizes = Arrays.asList(8, 64, 256, 512);
+        List<Integer> latencySizes = Arrays.asList(8, 64, 256, 512);
+        List<Integer> throughputSizes = Arrays.asList(1024, 512, 256);
         Map<Integer, List<Long>> latencyResults = new HashMap<>();
         Map<Integer, Double> throughputResults = new HashMap<>();
 
         System.out.println("Starting TCP Client... Connecting to " + HOST + ":" + PORT);
 
-        for (int size : messageSizes) {
+        for (int size : latencySizes) {
             latencyResults.put(size, measureLatency(size));
         }
 
-        for (int size : messageSizes) {
+        for (int size : throughputSizes) {
             throughputResults.put(size, measureThroughput(size));
         }
 
         saveResultsToCSV(csvFile, latencyResults, throughputResults);
-        System.out.println("Results saved to " + csvFile);
     }
 
     private static List<Long> measureLatency(int messageSize) throws IOException {
         List<Long> latencies = new ArrayList<>();
         byte[] message = new byte[messageSize];
         Arrays.fill(message, (byte) 1);
-        message = encryptDecrypt(message, KEY); // Encrypt the message
+        message = encryptDecrypt(message, KEY);
 
         Socket socket = new Socket(HOST, PORT);
         DataOutputStream out = new DataOutputStream(socket.getOutputStream());
         DataInputStream in = new DataInputStream(socket.getInputStream());
 
-        for (int i = 0; i < NUM_MESSAGES; i++) {
+        for (int i = 0; i < 100; i++) {
             long startTime = System.nanoTime();
             out.write(message);
             out.flush();
+
             byte[] response = new byte[messageSize];
             in.readFully(response);
-            response = encryptDecrypt(response, KEY); // Decrypt response
+            response = encryptDecrypt(response, KEY);
             long endTime = System.nanoTime();
             latencies.add((endTime - startTime) / 1000);
         }
@@ -90,23 +89,21 @@ public class TCP_Client {
         int numMessages = 1048576 / messageSize;
         byte[] message = new byte[messageSize];
         Arrays.fill(message, (byte) 1);
-        message = encryptDecrypt(message, KEY); // Encrypt the message
+        message = encryptDecrypt(message, KEY);
 
         long startTime = System.nanoTime();
 
         for (int i = 0; i < numMessages; i++) {
             out.write(message);
             out.flush();
-            byte[] response = new byte[8];
+            byte[] response = new byte[messageSize];
             in.readFully(response);
-            response = encryptDecrypt(response, KEY); // Decrypt response
+            response = encryptDecrypt(response, KEY);
         }
 
         long endTime = System.nanoTime();
         socket.close();
-
-        double duration = (endTime - startTime) / 1e9;
-        return (8.0 * 1048576 / duration) / 1e6;
+        return (8.0 * 1048576 / ((endTime - startTime) / 1e9));
     }
 
     private static void saveResultsToCSV(String csvFile, Map<Integer, List<Long>> latencyResults, Map<Integer, Double> throughputResults) throws IOException {
@@ -129,7 +126,3 @@ public class TCP_Client {
         System.out.println("CSV file saved successfully.");
     }
 }
-
-
-
-
