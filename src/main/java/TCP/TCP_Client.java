@@ -5,10 +5,19 @@ import java.net.*;
 import java.util.*;
 
 public class TCP_Client {
-    private static final String HOST = "localhost";
+//    private static final String HOST = "localhost";
+    private static final String HOST = "pi.oswego.edu";
+//    private static final String HOST = "rho.oswego.edu";
+//    private static final String HOST = "gee.oswego.edu";
+
+
     private static final int PORT = 26896;
     private static final int NUM_MESSAGES = 100;
-    private static String outputDir = "local-local";
+//    private static String OUTPUT_DIR = "local-local";
+    private static String OUTPUT_DIR = "local-pi";
+//    private static String OUTPUT_DIR = "pi-rho";
+//    private static String OUTPUT_DIR = "rho-gee";
+
     private static final long KEY = 123456789L;
 
     private static long xorShift(long r) {
@@ -29,7 +38,7 @@ public class TCP_Client {
     }
 
     public static void main(String[] args) throws IOException {
-        String csvFile = outputDir + "/TCP_network_results.csv";
+        String csvFile = OUTPUT_DIR + "/TCP_network_results.csv";
         List<Integer> messageSizes = Arrays.asList(8, 64, 256, 512);
         Map<Integer, List<Long>> latencyResults = new HashMap<>();
         Map<Integer, Double> throughputResults = new HashMap<>();

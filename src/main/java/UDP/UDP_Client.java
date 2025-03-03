@@ -7,10 +7,25 @@ import java.nio.channels.DatagramChannel;
 import java.util.*;
 
 public class UDP_Client {
-    private static final String HOST = "localhost";
+
+
+//    private static final String HOST = "localhost";
+    private static final String HOST = "pi.oswego.edu";
+//    private static final String HOST = "rho.oswego.edu";
+//    private static final String HOST = "gee.oswego.edu";
+
+
     private static final int PORT = 26896;
     private static final int NUM_MESSAGES = 100;
-    private static final String OUTPUT_DIR = "local-local";
+
+
+//    private static String OUTPUT_DIR = "local-local";
+    private static String OUTPUT_DIR = "local-pi";
+//    private static String OUTPUT_DIR = "pi-rho";
+//    private static String OUTPUT_DIR = "rho-gee";
+
+
+
     private static final long KEY = 123456789L;
 
     private static long xorShift(long r) {
