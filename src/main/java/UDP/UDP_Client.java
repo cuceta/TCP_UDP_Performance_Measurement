@@ -7,17 +7,17 @@ import java.nio.channels.DatagramChannel;
 import java.util.*;
 
 public class UDP_Client {
-    //    private static final String HOST = "localhost";
+        private static final String HOST = "localhost";
 //    private static final String HOST = "pi.cs.oswego.edu";
 //    private static final String HOST = "rho.cs.oswego.edu";
-    private static final String HOST = "gee.cs.oswego.edu";
+//    private static final String HOST = "moxie.cs.oswego.edu";
 
     private static final int PORT = 26896;
 
-//    private static final String OUTPUT_DIR = System.getProperty("user.home") + "/Desktop/TCP_UDP_Perfomance_Measurement/local-local";
+    private static final String OUTPUT_DIR = System.getProperty("user.home") + "/Desktop/TCP_UDP_Perfomance_Measurement/local-local";
 //    private static final String OUTPUT_DIR = System.getProperty("user.home") + "/Desktop/TCP_UDP_Perfomance_Measurement/local-pi";
 //    private static final String OUTPUT_DIR = System.getProperty("user.home") + "/Desktop/TCP_UDP_Perfomance_Measurement/pi-rho";
-    private static final String OUTPUT_DIR = System.getProperty("user.home") + "/Desktop/TCP_UDP_Perfomance_Measurement/rho-gee";
+//    private static final String OUTPUT_DIR = System.getProperty("user.home") + "/Desktop/TCP_UDP_Perfomance_Measurement/rho-moxie";
 
     private static final long KEY = 123456789L;
     private static final int NUM_LATENCY_MESSAGES = 100;

@@ -15,7 +15,7 @@ public class NetworkGraphGenerator {
 //    private static String OUTPUT_DIR = "local-local";
 //    private static String OUTPUT_DIR = "local-pi";
 //    private static String OUTPUT_DIR = "pi-rho";
-    private static String OUTPUT_DIR = "rho-gee";
+    private static String OUTPUT_DIR = "rho-moxie";
 
 
     public static void main(String[] args) {
