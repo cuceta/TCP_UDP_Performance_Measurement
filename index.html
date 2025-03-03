@@ -41,39 +41,222 @@
             /* Slightly darker grey
           background for the second column */
         }
+
+        header {
+        position: sticky;
+        top: 0;
+        width: 100%;
+        z-index: 20;
+        }
+
+        section {
+            padding-top: 60px;
+        }
+
+        /* Navbar Styles */
+        nav {
+            display: flex;
+            justify-content: center;
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+            /*background: #222;*/
+            color: white;
+            height: 55px;
+            width: 100%;
+            position: sticky;
+            top:0;
+            background-color: rgba(0, 0, 0, 0.09);
+        }
+
+        .nav-links {
+            list-style: none;
+            text-align: center;
+            text-anchor: middle;
+            justify-content: center;
+            align-items:center;
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links li {
+            display: inline;
+            font-size: 18px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            /*color: #000000;*/
+            color: #000;
+            font-size: 20px;
+            margin: 15px;
+            text-transform: uppercase;
+        }
+
+        a:hover,
+        a:focus {
+            text-decoration: #000  underline;
+        }
     </style>
 </head>
+
+<!-- Responsive Navbar -->
+<header>
+    <nav id="navbar">
+        <ul class="nav-links" id="navLinks">
+            <li><a href="#local-local">local-local</a></li>
+            <li><a href="#local-pi">local-pi</a></li>
+            <li><a href="#pi-rho">pi-rho</a></li>
+            <li><a href="#rho-moxie">rho-moxie</a></li>
+        </ul>
+    </nav>
+</header>
+
 <body>
-<div class="container">
-    <div class="column">
-        <h1>TCP</h1>
-        <h2>Latency</h2>
-        <img src="local-local/TCP_latency_8B.png" alt="TCP_latency_8B.png Benchmark Chart"/>
-        <img src="local-local/TCP_latency_64B.png" alt="TCP_latency_8B.png Benchmark Chart"/>
-        <img src="local-local/TCP_latency_256B.png" alt="TCP_latency_8B.png Benchmark Chart"/>
-        <img src="local-local/TCP_latency_512B.png" alt="TCP_latency_8B.png Benchmark Chart"/>
 
-        <div class="chart">
-            <h2>Throughput</h2>
-            <img src="local-local/TCP_throughput.png" alt="ConcurrentHashMap Benchmark Chart"/>
+<!--===== LOCAL TO LOCAL =====--><!--===== LOCAL TO LOCAL =====--><!--===== LOCAL TO LOCAL =====--><!--===== LOCAL TO LOCAL =====-->
+    <section id="local-local">
+        <h1>Local-Local</h1>
+        <div class="container">
+            <div class="column">
+                <h1>TCP</h1>
+                <h2>Latency</h2>
+                <img src="local-local/TCP_latency_8B.png" alt="TCP_latency_8B.png Benchmark Chart"/>
+                <img src="local-local/TCP_latency_64B.png" alt="TCP_latency_8B.png Benchmark Chart"/>
+                <img src="local-local/TCP_latency_256B.png" alt="TCP_latency_8B.png Benchmark Chart"/>
+                <img src="local-local/TCP_latency_512B.png" alt="TCP_latency_8B.png Benchmark Chart"/>
+
+                <div class="chart">
+                    <h2>Throughput</h2>
+                    <img src="local-local/TCP_throughput.png" alt="ConcurrentHashMap Benchmark Chart"/>
+                </div>
+            </div>
+
+            <div class="column">
+
+                <h1>UDP</h1>
+                <h2>Latency</h2>
+                <img src="local-local/UDP_latency_8B.png" alt="UDP_latency_8B.png Benchmark Chart"/>
+                <img src="local-local/UDP_latency_64B.png" alt="UDP_latency_8B.png Benchmark Chart"/>
+                <img src="local-local/UDP_latency_256B.png" alt="UDP_latency_8B.png Benchmark Chart"/>
+                <img src="local-local/UDP_latency_512B.png" alt="UDP_latency_8B.png Benchmark Chart"/>
+
+                <div class="chart">
+                    <h2>Throughput</h2>
+                    <img src="local-local/UDP_throughput.png" alt="ConcurrentHashMap Benchmark Chart"/>
+                </div>
+            </div>
+
         </div>
-    </div>
+    </section>
 
-    <div class="column">
 
-        <h1>UDP</h1>
-        <h2>Latency</h2>
-        <img src="local-local/UDP_latency_8B.png" alt="UDP_latency_8B.png Benchmark Chart"/>
-        <img src="local-local/UDP_latency_64B.png" alt="UDP_latency_8B.png Benchmark Chart"/>
-        <img src="local-local/UDP_latency_256B.png" alt="UDP_latency_8B.png Benchmark Chart"/>
-        <img src="local-local/UDP_latency_512B.png" alt="UDP_latency_8B.png Benchmark Chart"/>
 
-        <div class="chart">
-            <h2>Throughput</h2>
-            <img src="local-local/UDP_throughput.png" alt="ConcurrentHashMap Benchmark Chart"/>
+<!--===== LOCAL TO PI =====--><!--===== LOCAL TO PI =====--><!--===== LOCAL TO PI =====--><!--===== LOCAL TO PI =====--><!--===== LOCAL TO PI =====-->
+    <section id="local-pi">
+        <h1>Local-pi</h1>
+        <div class="container">
+            <div class="column">
+                <h1>TCP</h1>
+                <h2>Latency</h2>
+                <img src="local-pi/TCP_latency_8B.png" alt="TCP_latency_8B.png Benchmark Chart"/>
+                <img src="local-pi/TCP_latency_64B.png" alt="TCP_latency_8B.png Benchmark Chart"/>
+                <img src="local-pi/TCP_latency_256B.png" alt="TCP_latency_8B.png Benchmark Chart"/>
+                <img src="local-pi/TCP_latency_512B.png" alt="TCP_latency_8B.png Benchmark Chart"/>
+
+                <div class="chart">
+                    <h2>Throughput</h2>
+                    <img src="local-pi/TCP_throughput.png" alt="ConcurrentHashMap Benchmark Chart"/>
+                </div>
+            </div>
+
+            <div class="column">
+
+                <h1>UDP</h1>
+                <h2>Latency</h2>
+                <img src="local-pi/UDP_latency_8B.png" alt="UDP_latency_8B.png Benchmark Chart"/>
+                <img src="local-pi/UDP_latency_64B.png" alt="UDP_latency_8B.png Benchmark Chart"/>
+                <img src="local-pi/UDP_latency_256B.png" alt="UDP_latency_8B.png Benchmark Chart"/>
+                <img src="local-pi/UDP_latency_512B.png" alt="UDP_latency_8B.png Benchmark Chart"/>
+
+                <div class="chart">
+                    <h2>Throughput</h2>
+                    <img src="local-pi/UDP_throughput.png" alt="ConcurrentHashMap Benchmark Chart"/>
+                </div>
+            </div>
+
         </div>
-    </div>
+    </section>
 
-</div>
+<!--===== PI TO RHO =====--><!--===== PI TO RHO =====--><!--===== PI TO RHO =====--><!--===== PI TO RHO =====--><!--===== PI TO RHO =====-->
+    <section id="pi-rho">
+        <h1>pi-rho</h1>
+        <div class="container">
+            <div class="column">
+                <h1>TCP</h1>
+                <h2>Latency</h2>
+                <img src="pi-rho/TCP_latency_8B.png" alt="TCP_latency_8B.png Benchmark Chart"/>
+                <img src="pi-rho/TCP_latency_64B.png" alt="TCP_latency_8B.png Benchmark Chart"/>
+                <img src="pi-rho/TCP_latency_256B.png" alt="TCP_latency_8B.png Benchmark Chart"/>
+                <img src="pi-rho/TCP_latency_512B.png" alt="TCP_latency_8B.png Benchmark Chart"/>
+
+                <div class="chart">
+                    <h2>Throughput</h2>
+                    <img src="pi-rho/TCP_throughput.png" alt="ConcurrentHashMap Benchmark Chart"/>
+                </div>
+            </div>
+
+            <div class="column">
+                <h1>UDP</h1>
+                <h2>Latency</h2>
+                <img src="pi-rho/UDP_latency_8B.png" alt="UDP_latency_8B.png Benchmark Chart"/>
+                <img src="pi-rho/UDP_latency_64B.png" alt="UDP_latency_8B.png Benchmark Chart"/>
+                <img src="pi-rho/UDP_latency_256B.png" alt="UDP_latency_8B.png Benchmark Chart"/>
+                <img src="pi-rho/UDP_latency_512B.png" alt="UDP_latency_8B.png Benchmark Chart"/>
+
+                <div class="chart">
+                    <h2>Throughput</h2>
+                    <img src="pi-rho/UDP_throughput.png" alt="ConcurrentHashMap Benchmark Chart"/>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+
+<!--===== RHO TO MOXIE =====--><!--===== RHO TO MOXIE =====--><!--===== RHO TO MOXIE =====--><!--===== RHO TO MOXIE =====--><!--===== RHO TO MOXIE =====-->
+    <section id="rho-moxie">
+        <h1>rho-moxie</h1>
+        <div class="container">
+            <div class="column">
+                <h1>TCP</h1>
+                <h2>Latency</h2>
+                <img src="rho-moxie/TCP_latency_8B.png" alt="TCP_latency_8B.png Benchmark Chart"/>
+                <img src="rho-moxie/TCP_latency_64B.png" alt="TCP_latency_8B.png Benchmark Chart"/>
+                <img src="rho-moxie/TCP_latency_256B.png" alt="TCP_latency_8B.png Benchmark Chart"/>
+                <img src="rho-moxie/TCP_latency_512B.png" alt="TCP_latency_8B.png Benchmark Chart"/>
+
+                <div class="chart">
+                    <h2>Throughput</h2>
+                    <img src="rho-moxie/TCP_throughput.png" alt="ConcurrentHashMap Benchmark Chart"/>
+                </div>
+            </div>
+
+            <div class="column">
+                <h1>UDP</h1>
+                <h2>Latency</h2>
+                <img src="rho-moxie/UDP_latency_8B.png" alt="UDP_latency_8B.png Benchmark Chart"/>
+                <img src="rho-moxie/UDP_latency_64B.png" alt="UDP_latency_8B.png Benchmark Chart"/>
+                <img src="rho-moxie/UDP_latency_256B.png" alt="UDP_latency_8B.png Benchmark Chart"/>
+                <img src="rho-moxie/UDP_latency_512B.png" alt="UDP_latency_8B.png Benchmark Chart"/>
+
+                <div class="chart">
+                    <h2>Throughput</h2>
+                    <img src="rho-moxie/UDP_throughput.png" alt="ConcurrentHashMap Benchmark Chart"/>
+                </div>
+            </div>
+
+        </div>
+    </section>
 </body>
 </html>
