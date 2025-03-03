@@ -11,12 +11,17 @@ import java.util.*;
 
 public class NetworkGraphGenerator {
 
+    private static final String OUTPUT_DIR = "local-local";
+
     public static void main(String[] args) {
-        runClientAndGenerateGraphs("TCP.EchoClient", "TCP_network_results.csv", "TCP_");
-        runClientAndGenerateGraphs("UDP.UDP_Client", "UDP_network_results.csv", "UDP_");
+        String tcpCsvFile = OUTPUT_DIR + "/TCP_network_results.csv";
+        String udpCsvFile = OUTPUT_DIR + "/UDP_network_results.csv";
+
+        runClientAndGenerateGraphs(tcpCsvFile, "TCP_");
+        runClientAndGenerateGraphs(udpCsvFile, "UDP_");
     }
 
-    private static void runClientAndGenerateGraphs(String clientClass, String csvFile, String prefix) {
+    private static void runClientAndGenerateGraphs(String csvFile, String prefix) {
         generateLatencyGraph(csvFile, prefix);
         generateThroughputGraph(csvFile, prefix);
     }
@@ -36,7 +41,6 @@ public class NetworkGraphGenerator {
                     latencyData.putIfAbsent(messageSize, new ArrayList<>());
                     latencyData.get(messageSize).add(latency);
                 } catch (NumberFormatException e) {
-                    // Skip invalid data lines (e.g., headers)
                     continue;
                 }
             }
@@ -78,7 +82,7 @@ public class NetworkGraphGenerator {
         );
 
         try {
-            ChartUtils.saveChartAsPNG(new File(prefix + "latency_" + messageSize + "B.png"), latencyChart, 800, 600);
+            ChartUtils.saveChartAsPNG(new File(OUTPUT_DIR, prefix + "latency_" + messageSize + "B.png"), latencyChart, 800, 600);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -97,7 +101,6 @@ public class NetworkGraphGenerator {
                     double throughput = Double.parseDouble(values[1].trim());
                     dataset.addValue(throughput, "Throughput", messageSize + "B");
                 } catch (NumberFormatException e) {
-                    // Skip invalid data lines (e.g., headers)
                     continue;
                 }
             }
@@ -116,7 +119,7 @@ public class NetworkGraphGenerator {
         );
 
         try {
-            ChartUtils.saveChartAsPNG(new File(prefix + "throughput.png"), throughputChart, 800, 600);
+            ChartUtils.saveChartAsPNG(new File(OUTPUT_DIR, prefix + "throughput.png"), throughputChart, 800, 600);
         } catch (IOException e) {
             e.printStackTrace();
         }

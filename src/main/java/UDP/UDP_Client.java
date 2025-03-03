@@ -10,9 +10,33 @@ public class UDP_Client {
     private static final String HOST = "localhost";
     private static final int PORT = 26896;
     private static final int NUM_MESSAGES = 100;
-    private static final String CSV_FILE = "UDP_network_results.csv";
+    private static final String OUTPUT_DIR = "local-local";
+    private static final long KEY = 123456789L;
+
+    private static long xorShift(long r) {
+        r ^= (r << 13);
+        r ^= (r >>> 7);
+        r ^= (r << 17);
+        return r;
+    }
+
+    private static byte[] encryptDecrypt(byte[] data, long key) {
+        byte[] result = new byte[data.length];
+        long currentKey = key;
+        for (int i = 0; i < data.length; i++) {
+            result[i] = (byte) (data[i] ^ (currentKey & 0xFF));
+            currentKey = xorShift(currentKey);
+        }
+        return result;
+    }
 
     public static void main(String[] args) throws IOException {
+        File directory = new File(OUTPUT_DIR);
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+        String csvFile = OUTPUT_DIR + "/UDP_network_results.csv";
+
         List<Integer> messageSizes = Arrays.asList(8, 64, 256, 512);
         Map<Integer, List<Long>> latencyResults = new HashMap<>();
         Map<Integer, Double> throughputResults = new HashMap<>();
@@ -26,14 +50,16 @@ public class UDP_Client {
             }
         }
 
-        saveResultsToCSV(latencyResults, throughputResults);
-        System.out.println("Results saved to " + CSV_FILE);
+        saveResultsToCSV(latencyResults, throughputResults, csvFile);
+        System.out.println("Results saved to " + csvFile);
     }
 
     private static List<Long> measureLatency(DatagramChannel channel, int messageSize) throws IOException {
         List<Long> latencies = new ArrayList<>();
         ByteBuffer buffer = ByteBuffer.allocate(messageSize);
         Arrays.fill(buffer.array(), (byte) 1);
+        byte[] encryptedData = encryptDecrypt(buffer.array(), KEY);
+        buffer.put(encryptedData);
         ByteBuffer ackBuffer = ByteBuffer.allocate(1);
 
         for (int i = 0; i < NUM_MESSAGES; i++) {
@@ -41,7 +67,7 @@ public class UDP_Client {
             buffer.rewind();
             channel.write(buffer);
 
-            if ((i + 1) % 10 == 0) {  // Only wait for acknowledgment every 10 messages
+            if ((i + 1) % 10 == 0) {
                 ackBuffer.clear();
                 channel.read(ackBuffer);
             }
@@ -56,6 +82,8 @@ public class UDP_Client {
         int numMessages = 1048576 / messageSize;
         ByteBuffer buffer = ByteBuffer.allocate(messageSize);
         Arrays.fill(buffer.array(), (byte) 1);
+        byte[] encryptedData = encryptDecrypt(buffer.array(), KEY);
+        buffer.put(encryptedData);
         ByteBuffer ackBuffer = ByteBuffer.allocate(1);
         long startTime = System.nanoTime();
 
@@ -63,7 +91,7 @@ public class UDP_Client {
             buffer.rewind();
             channel.write(buffer);
 
-            if ((i + 1) % 10 == 0) {  // Only check for acknowledgment every 10 messages
+            if ((i + 1) % 10 == 0) {
                 ackBuffer.clear();
                 channel.read(ackBuffer);
             }
@@ -74,8 +102,8 @@ public class UDP_Client {
         return (8.0 * 1048576 / duration) / 1e6;
     }
 
-    private static void saveResultsToCSV(Map<Integer, List<Long>> latencyResults, Map<Integer, Double> throughputResults) throws IOException {
-        try (PrintWriter writer = new PrintWriter(new FileWriter(CSV_FILE))) {
+    private static void saveResultsToCSV(Map<Integer, List<Long>> latencyResults, Map<Integer, Double> throughputResults, String csvFile) throws IOException {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(csvFile))) {
             writer.println("Message Size,Message Number,Latency (µs)");
             for (int size : latencyResults.keySet()) {
                 List<Long> latencies = latencyResults.get(size);

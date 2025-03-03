@@ -3,7 +3,7 @@ package TCP;
 import java.io.*;
 import java.net.*;
 
-public class SimpleService {
+public class TCP_Server {
     private static final int PORT = 26896;
 
     private static long xorShift(long r) {
