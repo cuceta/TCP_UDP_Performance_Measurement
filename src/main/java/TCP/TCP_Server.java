@@ -29,8 +29,8 @@ public class TCP_Server {
             System.out.println("Server listening on port " + PORT);
 
             while (true) {
-                Socket client = serverSocket.accept();
-                new Thread(() -> handleClient(client)).start();
+                Socket client = serverSocket.accept(); //accepts connection
+                new Thread(() -> handleClient(client)).start(); //each connection gets its own thread.
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -44,15 +44,18 @@ public class TCP_Server {
 
             while (true) {
                 byte[] buffer = new byte[1024];
-                int bytesRead = in.read(buffer);
+                int bytesRead = in.read(buffer); //read incoming
                 if (bytesRead == -1) break;
 
                 byte[] receivedData = new byte[bytesRead];
                 System.arraycopy(buffer, 0, receivedData, 0, bytesRead);
-                receivedData = encryptDecrypt(receivedData, KEY);
+                receivedData = encryptDecrypt(receivedData, KEY);//decrypt received message
 
-                byte[] response = encryptDecrypt(receivedData, KEY);
-                out.write(response);
+
+
+
+                byte[] response = encryptDecrypt(receivedData, KEY); //encrypt received message
+                out.write(response); //echo message
                 out.flush();
             }
 

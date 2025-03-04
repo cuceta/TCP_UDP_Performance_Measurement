@@ -7,17 +7,17 @@ import java.nio.channels.DatagramChannel;
 import java.util.*;
 
 public class UDP_Client {
-        private static final String HOST = "localhost";
+//        private static final String HOST = "localhost";
 //    private static final String HOST = "pi.cs.oswego.edu";
 //    private static final String HOST = "rho.cs.oswego.edu";
-//    private static final String HOST = "moxie.cs.oswego.edu";
+    private static final String HOST = "moxie.cs.oswego.edu";
 
     private static final int PORT = 26896;
 
-    private static final String OUTPUT_DIR = System.getProperty("user.home") + "/Desktop/TCP_UDP_Perfomance_Measurement/local-local";
-//    private static final String OUTPUT_DIR = System.getProperty("user.home") + "/Desktop/TCP_UDP_Perfomance_Measurement/local-pi";
+//    private static final String OUTPUT_DIR = System.getProperty("user.home") + "/Documents/GitHub/TCP_UDP_Perfomance_Measurement/local-local";
+//    private static final String OUTPUT_DIR = System.getProperty("user.home") + "/Documents/GitHub/TCP_UDP_Perfomance_Measurement/local-pi";
 //    private static final String OUTPUT_DIR = System.getProperty("user.home") + "/Desktop/TCP_UDP_Perfomance_Measurement/pi-rho";
-//    private static final String OUTPUT_DIR = System.getProperty("user.home") + "/Desktop/TCP_UDP_Perfomance_Measurement/rho-moxie";
+    private static final String OUTPUT_DIR = System.getProperty("user.home") + "/Desktop/TCP_UDP_Perfomance_Measurement/rho-moxie";
 
     private static final long KEY = 123456789L;
     private static final int NUM_LATENCY_MESSAGES = 100;
@@ -66,21 +66,22 @@ public class UDP_Client {
 
     private static List<Long> measureLatency(DatagramChannel channel, int messageSize) throws IOException {
         List<Long> latencies = new ArrayList<>();
-        ByteBuffer buffer = ByteBuffer.allocate(messageSize);
+        //prepare to send message
+        ByteBuffer buffer = ByteBuffer.allocate(messageSize); //get space
         byte[] data = new byte[messageSize];
-        Arrays.fill(data, (byte) 1);
-        data = encryptDecrypt(data, KEY);
-        buffer.put(data);
-        ByteBuffer responseBuffer = ByteBuffer.allocate(messageSize);
+        Arrays.fill(data, (byte) 1);//fill message
+        data = encryptDecrypt(data, KEY);//encrypt
+        buffer.put(data);//shove message in space previously gotten
+        ByteBuffer responseBuffer = ByteBuffer.allocate(messageSize);//get space for server's response
 
         for (int i = 0; i < NUM_LATENCY_MESSAGES; i++) {
-            long startTime = System.nanoTime();
+            long startTime = System.nanoTime();//get message
             buffer.rewind();
-            channel.write(buffer);
+            channel.write(buffer);//send buffer over channel
             responseBuffer.clear();
-            channel.read(responseBuffer);
-            long endTime = System.nanoTime();
-            latencies.add((endTime - startTime) / 1000);
+            channel.read(responseBuffer);//receive echoed message
+            long endTime = System.nanoTime();//stop time
+            latencies.add((endTime - startTime) / 1000);//save latency in microseconds
             System.out.println("Latency measurement " + (i + 1) + " of " + NUM_LATENCY_MESSAGES);
         }
         return latencies;
@@ -88,6 +89,7 @@ public class UDP_Client {
 
     private static double measureThroughput(DatagramChannel channel, int messageSize) throws IOException {
         int numMessages;
+        //choose the number of messages based on the message size.
         switch (messageSize) {
             case 1024:
                 numMessages = 1024;
@@ -102,28 +104,29 @@ public class UDP_Client {
                 throw new IllegalArgumentException("Invalid message size for throughput test");
         }
 
+        //prepare message (encrypt and fill)
         ByteBuffer buffer = ByteBuffer.allocate(messageSize);
         byte[] data = new byte[messageSize];
-        for (int i = 0; i < messageSize; i++) {
+        for (int i = 0; i < messageSize; i++) { //fill from numbers 0 to 265
             data[i] = (byte) (i % 256);
         }
         data = encryptDecrypt(data, KEY);
-        buffer.put(data);
-        ByteBuffer ackBuffer = ByteBuffer.allocate(8);
+        buffer.put(data); //hold encrypted message
+        ByteBuffer ackBuffer = ByteBuffer.allocate(8); //space for acknowledgement
         long startTime = System.nanoTime();
 
         for (int i = 0; i < numMessages; i++) {
             buffer.rewind();
-            channel.write(buffer);
+            channel.write(buffer);//send encrypted message in buffer through channel
             ackBuffer.clear();
-            channel.read(ackBuffer);
+            channel.read(ackBuffer);//wait to get acknowledgement
             if ((i + 1) % (numMessages / 10) == 0) {
                 System.out.println("Throughput progress: " + ((i + 1) * 100 / numMessages) + "%");
             }
         }
 
         long endTime = System.nanoTime();
-        return (8.0 * 1048576 / ((endTime - startTime) / 1e9));
+        return (8.0 * 1048576 / ((endTime - startTime) / 1e9)) / 1_000_000; //throughput in Mbps
     }
 
     private static void saveResultsToCSV(String csvFile, Map<Integer, List<Long>> latencyResults, Map<Integer, Double> throughputResults) throws IOException {

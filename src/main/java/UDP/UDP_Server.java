@@ -37,23 +37,23 @@ public class UDP_Server {
             ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
 
             while (true) {
-                buffer.clear();
-                SocketAddress clientAddress = channel.receive(buffer);
+                buffer.clear();//clean buffer to prevent message corruption
+                SocketAddress clientAddress = channel.receive(buffer);//store sender's address to know where to respond + save message in buffer
 
                 if (clientAddress != null) {
                     byte[] receivedData = new byte[buffer.position()];
-                    buffer.flip();
-                    buffer.get(receivedData);
+                    buffer.flip();//go from writing to reading mode
+                    buffer.get(receivedData); //save message
 
                     byte[] decryptedMessage = encryptDecrypt(receivedData, KEY); // Decrypt message
                     byte[] encryptedResponse = encryptDecrypt(decryptedMessage, KEY); // Encrypt response
 
                     messageCounter++;
 
-                    ByteBuffer responseBuffer = ByteBuffer.wrap(encryptedResponse);
-                    channel.send(responseBuffer, clientAddress);
+                    ByteBuffer responseBuffer = ByteBuffer.wrap(encryptedResponse); //put encrypted response in a buffer
+                    channel.send(responseBuffer, clientAddress);//send message back
 
-                    if (messageCounter % 10 == 0) {
+                    if (messageCounter % 10 == 0) { //send acknowledgments every 10 messages
                         ByteBuffer ackBuffer = ByteBuffer.allocate(1);
                         ackBuffer.put((byte) 1);
                         ackBuffer.flip();

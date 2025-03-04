@@ -5,18 +5,18 @@ import java.net.*;
 import java.util.*;
 
 public class TCP_Client {
-    private static final String HOST = "localhost";
+//    private static final String HOST = "localhost";
 //    private static final String HOST = "pi.cs.oswego.edu";
 //    private static final String HOST = "rho.cs.oswego.edu";
-//    private static final String HOST = "moxie.cs.oswego.edu";
+    private static final String HOST = "moxie.cs.oswego.edu";
 
     private static final int PORT = 26896;
 
 
-        private static final String OUTPUT_DIR = System.getProperty("user.home") + "/Desktop/TCP_UDP_Perfomance_Measurement/local-local";
-//    private static final String OUTPUT_DIR = System.getProperty("user.home") + "/Desktop/TCP_UDP_Perfomance_Measurement/local-pi";
+//        private static final String OUTPUT_DIR = System.getProperty("user.home") + "/Documents/GitHub/TCP_UDP_Perfomance_Measurement/local-local";
+//    private static final String OUTPUT_DIR = System.getProperty("user.home") + "/Documents/GitHub/TCP_UDP_Perfomance_Measurement/local-pi";
 //    private static final String OUTPUT_DIR = System.getProperty("user.home") + "/Desktop/TCP_UDP_Perfomance_Measurement/pi-rho";
-//    private static final String OUTPUT_DIR = System.getProperty("user.home") + "/Desktop/TCP_UDP_Perfomance_Measurement/rho-moxie";
+    private static final String OUTPUT_DIR = System.getProperty("user.home") + "/Desktop/TCP_UDP_Perfomance_Measurement/rho-moxie";
 
 
     private static final long KEY = 123456789L;
@@ -61,27 +61,32 @@ public class TCP_Client {
 
     private static List<Long> measureLatency(int messageSize) throws IOException {
         List<Long> latencies = new ArrayList<>();
+
+        //prepare message to be sent
         byte[] message = new byte[messageSize];
         Arrays.fill(message, (byte) 1);
         message = encryptDecrypt(message, KEY);
 
+        //open connection
         Socket socket = new Socket(HOST, PORT);
         DataOutputStream out = new DataOutputStream(socket.getOutputStream());
         DataInputStream in = new DataInputStream(socket.getInputStream());
 
         for (int i = 0; i < 100; i++) {
-            long startTime = System.nanoTime();
+            long startTime = System.nanoTime();//start time
+
+            //send message
             out.write(message);
             out.flush();
-
             byte[] response = new byte[messageSize];
             in.readFully(response);
             response = encryptDecrypt(response, KEY);
-            long endTime = System.nanoTime();
-            latencies.add((endTime - startTime) / 1000);
+
+            long endTime = System.nanoTime(); //stop time
+            latencies.add((endTime - startTime) / 1000); //latency in microseconds
         }
 
-        socket.close();
+        socket.close(); //stop time
         return latencies;
     }
 
@@ -90,13 +95,16 @@ public class TCP_Client {
         DataOutputStream out = new DataOutputStream(socket.getOutputStream());
         DataInputStream in = new DataInputStream(socket.getInputStream());
 
-        int numMessages = 1048576 / messageSize;
+        int numMessages = 1048576 / messageSize; //figure out how many messages
+
+        //prepare message to be sent
         byte[] message = new byte[messageSize];
         Arrays.fill(message, (byte) 1);
         message = encryptDecrypt(message, KEY);
 
-        long startTime = System.nanoTime();
+        long startTime = System.nanoTime();//start time
 
+        //Send message
         for (int i = 0; i < numMessages; i++) {
             out.write(message);
             out.flush();
@@ -105,9 +113,9 @@ public class TCP_Client {
             response = encryptDecrypt(response, KEY);
         }
 
-        long endTime = System.nanoTime();
-        socket.close();
-        return (8.0 * 1048576 / ((endTime - startTime) / 1e9));
+        long endTime = System.nanoTime();//stop time
+        socket.close(); //stop connection
+        return (8.0 * 1048576 / ((endTime - startTime) / 1e9)) / 1_000_000; //Throughput in Mbps
     }
 
     private static void saveResultsToCSV(String csvFile, Map<Integer, List<Long>> latencyResults, Map<Integer, Double> throughputResults) throws IOException {
